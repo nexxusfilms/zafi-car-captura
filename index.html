@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zafi Car — Grupo VIP no WhatsApp</title>
+<meta name="description" content="Entre no grupo VIP da Zafi Car e receba ofertas exclusivas em troca de óleo, filtros e estética automotiva." />
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     PÁGINA DE CAPTURA — ZAFI CAR
+     Edite APENAS o bloco CONFIG abaixo (dentro do <script> no final).
+     1. whatsappGroupUrl  -> link do grupo do WhatsApp       (JÁ CONFIGURADO)
+     2. sheetsEndpoint    -> planilha do Google Sheets        (JÁ CONFIGURADO)
+     Opcional: e-mail em leadEmail, e imagem de fundo em --hero-photo (no CSS).
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    /* Cores da identidade Zafi Car */
+    --navy-950:#0a1330;
+    --navy-900:#0c1631;
+    --navy-800:#142449;
+    --navy-700:#1c3061;
+    --gold:#e9a83c;
+    --gold-bright:#f4bb54;
+    --paper:#ffffff;
+    --paper-dim:#e9edf6;
+    --muted:#9fb0d0;
+    --ok:#1fbf75;
+    --err:#ff6b6b;
+
+    /* Imagem de fundo (opcional). Cole a URL de uma foto sua ou deixe em branco
+       para usar só o fundo gráfico azul-marinho. Ex.: url("fundo.jpg") */
+    --hero-photo: none;
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--paper);
+    background:var(--navy-900);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  img{max-width:100%;display:block}
+  a{color:inherit}
+
+  /* ───────── Fundo ───────── */
+  .bg{
+    position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(1100px 700px at 78% -10%, rgba(233,168,60,.20), transparent 60%),
+      radial-gradient(900px 900px at 10% 110%, rgba(28,48,97,.75), transparent 60%),
+      linear-gradient(160deg, var(--navy-800) 0%, var(--navy-900) 45%, var(--navy-950) 100%);
+  }
+  .bg::before{ /* foto opcional por cima do gradiente */
+    content:"";position:absolute;inset:0;
+    background-image:var(--hero-photo);
+    background-size:cover;background-position:center;
+    opacity:.28;mix-blend-mode:luminosity;
+  }
+  .bg::after{ /* textura de linhas diagonais sutil */
+    content:"";position:absolute;inset:0;opacity:.5;
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,.025) 0 2px, transparent 2px 26px);
+  }
+  .glow{
+    position:fixed;z-index:-1;width:520px;height:520px;border-radius:50%;
+    background:radial-gradient(circle, rgba(233,168,60,.28), transparent 70%);
+    filter:blur(40px);top:-160px;right:-120px;pointer-events:none;
+  }
+
+  /* ───────── Layout ───────── */
+  .wrap{
+    max-width:1180px;margin:0 auto;padding:32px 24px 56px;
+    min-height:100vh;display:flex;flex-direction:column;
+  }
+  .grid{
+    flex:1;display:grid;gap:48px;align-items:center;
+    grid-template-columns:1.05fr .95fr;
+    padding-top:24px;
+  }
+  @media (max-width:920px){
+    .grid{grid-template-columns:1fr;gap:32px;padding-top:8px}
+  }
+
+  /* ───────── Marca ───────── */
+  .brand{display:flex;flex-direction:column;gap:6px}
+  .brand .logo-img{height:46px;width:auto;max-width:none;display:block;align-self:flex-start;object-fit:contain}
+  .brand .tagline{
+    font-size:10.5px;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--muted);
+  }
+
+  /* ───────── Coluna de texto ───────── */
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;
+    font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--gold-bright);
+    background:rgba(233,168,60,.12);
+    border:1px solid rgba(233,168,60,.35);
+    padding:7px 14px;border-radius:999px;margin-bottom:22px;
+  }
+  .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(233,168,60,.25)}
+
+  h1{
+    font-family:"Anton","Arial Narrow",sans-serif;
+    font-weight:400;line-height:.98;letter-spacing:.005em;
+    text-transform:uppercase;
+    font-size:clamp(2.4rem,5.4vw,4.1rem);
+    margin-bottom:20px;
+  }
+  h1 em{color:var(--gold);font-style:normal}
+
+  .sub{
+    font-size:clamp(1rem,1.6vw,1.18rem);
+    color:var(--paper-dim);max-width:33em;margin-bottom:28px;
+  }
+
+  .perks{list-style:none;display:grid;gap:12px;max-width:34em}
+  .perks li{display:flex;gap:12px;align-items:flex-start;font-size:.98rem;color:var(--paper-dim)}
+  .perks svg{flex:0 0 22px;margin-top:2px}
+
+  .tags{
+    margin-top:28px;display:flex;flex-wrap:wrap;gap:8px 10px;
+    font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  }
+  .tags span{border:1px solid rgba(255,255,255,.14);padding:5px 11px;border-radius:6px}
+
+  /* ───────── Card do formulário ───────── */
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(240,243,250,.96));
+    color:var(--navy-900);
+    border-radius:20px;
+    padding:32px 30px;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06);
+    position:relative;overflow:hidden;
+  }
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--gold),var(--gold-bright))}
+
+  .card h2{
+    font-family:"Anton","Arial Narrow",sans-serif;font-weight:400;
+    font-size:1.7rem;text-transform:uppercase;letter-spacing:.02em;
+    line-height:1.05;margin-bottom:6px;color:var(--navy-800);
+  }
+  .card p.lead{font-size:.94rem;color:#54627e;margin-bottom:22px}
+
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:.82rem;font-weight:700;letter-spacing:.02em;margin-bottom:6px;color:var(--navy-800)}
+  .field input{
+    width:100%;font:inherit;font-size:1rem;
+    padding:13px 14px;border-radius:11px;
+    border:1.5px solid #d3dae8;background:#fff;color:var(--navy-900);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .field input::placeholder{color:#9aa6bb}
+  .field input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(233,168,60,.22)}
+  .field input:user-invalid{border-color:var(--err)}
+  .field .hint{font-size:.76rem;color:#8590a5;margin-top:5px}
+
+  /* Seletor "uso pessoal" vs "empresa do ramo" */
+  .segmented{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .segmented input[type="radio"]{
+    position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;
+  }
+  .seg-opt{
+    display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;
+    font-size:.82rem;font-weight:600;color:#54627e;
+    padding:14px 10px;border-radius:11px;border:1.5px solid #d3dae8;background:#fff;
+    cursor:pointer;transition:border-color .15s, background .15s, color .15s, box-shadow .15s;
+  }
+  .seg-opt svg{width:22px;height:22px;stroke:#8b96ab;transition:stroke .15s}
+  .seg-opt:hover{border-color:#b9c3d8}
+  .segmented input[type="radio"]:checked + .seg-opt{
+    border-color:var(--gold);background:rgba(233,168,60,.12);color:var(--navy-800);
+    box-shadow:0 0 0 3px rgba(233,168,60,.18);
+  }
+  .segmented input[type="radio"]:checked + .seg-opt svg{stroke:var(--gold)}
+  .segmented input[type="radio"]:focus-visible + .seg-opt{outline:2px solid var(--gold);outline-offset:2px}
+
+  .btn{
+    width:100%;font-family:"Anton","Arial Narrow",sans-serif;font-weight:400;
+    font-size:1.15rem;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--navy-950);
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    border:none;border-radius:12px;padding:16px 20px;margin-top:6px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+    box-shadow:0 12px 26px -8px rgba(233,168,60,.65);
+    transition:transform .12s, box-shadow .12s, filter .12s;
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 18px 34px -8px rgba(233,168,60,.7)}
+  .btn:active{transform:translateY(0)}
+  .btn:disabled{filter:grayscale(.4) opacity(.7);cursor:progress;transform:none}
+  .btn svg{flex:0 0 22px}
+
+  .formnote{margin-top:14px;font-size:.78rem;color:#7c8194;text-align:center}
+  .formnote strong{color:var(--navy-800)}
+
+  .msg{display:none;font-size:.85rem;margin-top:12px;padding:10px 12px;border-radius:9px}
+  .msg.show{display:block}
+  .msg.error{background:rgba(255,107,107,.12);color:#c0392b;border:1px solid rgba(255,107,107,.4)}
+
+  /* honeypot anti-spam */
+  .gotcha{position:absolute;left:-9999px;opacity:0;height:0;width:0;overflow:hidden}
+
+  /* ───────── Tela de sucesso ───────── */
+  .success{display:none;text-align:center;padding:14px 4px 4px}
+  .success.show{display:block;animation:pop .4s ease}
+  @keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+  .success .check{
+    width:74px;height:74px;margin:0 auto 16px;border-radius:50%;
+    background:linear-gradient(180deg,#25d366,#128c7e);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 14px 30px -8px rgba(37,211,102,.6);
+  }
+  .success h2{color:var(--navy-800)}
+  .success p{font-size:.95rem;color:#54627e;margin:8px auto 20px;max-width:26em}
+
+  footer{margin-top:40px;text-align:center;font-size:.8rem;color:var(--muted)}
+  footer p{margin-top:6px}
+  footer p:first-child{margin-top:0}
+  footer b{color:var(--paper);font-weight:600}
+  footer .address{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px}
+  footer .address svg{width:14px;height:14px;flex:0 0 14px;stroke:var(--gold-bright)}
+  footer .address a{color:var(--gold-bright);font-weight:600;text-decoration:none;white-space:nowrap}
+  footer .address a:hover{text-decoration:underline}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="glow"></div>
+
+<div class="wrap">
+
+  <header class="brand">
+    <!-- Logo oficial da Zafi Car, recortado do arquivo do Canva (fundo removido). -->
+    <img class="logo-img" src="logo-zafi-car-transparent.png" alt="Zafi Car" />
+    <span class="tagline">Lubrificantes · Estética Automotiva · Filtros</span>
+  </header>
+
+  <main class="grid">
+
+    <section class="copy">
+      <span class="eyebrow">Grupo VIP no WhatsApp</span>
+      <h1>Seu carro em dia<br>com <em>ofertas que</em><br>só o grupo recebe</h1>
+      <p class="sub">
+        Entre no grupo VIP da Zafi Car e receba em primeira mão promoções de
+        troca de óleo, filtros e estética automotiva — além de lembretes da
+        próxima revisão do seu veículo.
+      </p>
+
+      <ul class="perks">
+        <li>
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#e9a83c"/><path d="M7 12.5l3.2 3.2L17 9" stroke="#0c1631" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span><strong>Promoções exclusivas</strong> de troca de óleo e filtros antes de todo mundo.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#e9a83c"/><path d="M7 12.5l3.2 3.2L17 9" stroke="#0c1631" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span><strong>Descontos em estética automotiva</strong>: lavagem, polimento e vitrificação.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#e9a83c"/><path d="M7 12.5l3.2 3.2L17 9" stroke="#0c1631" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span><strong>Lembrete da próxima revisão</strong> para você nunca passar do prazo.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#e9a83c"/><path d="M7 12.5l3.2 3.2L17 9" stroke="#0c1631" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span><strong>Atendimento prioritário</strong> para quem é do grupo.</span>
+        </li>
+      </ul>
+
+      <div class="tags">
+        <span>Lubrificantes</span><span>Estética Automotiva</span><span>Filtros</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+
+        <form id="leadForm" novalidate>
+          <h2>Entrar no grupo VIP</h2>
+          <p class="lead">Preencha os dados abaixo e você será direcionado para o grupo no WhatsApp.</p>
+
+          <!-- honeypot: humanos não veem, bots preenchem -->
+          <div class="gotcha" aria-hidden="true">
+            <label>Não preencha <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
+          </div>
+
+          <div class="field">
+            <label for="nome">Nome completo</label>
+            <input id="nome" name="nome" type="text" autocomplete="name" placeholder="Ex.: João da Silva" required />
+          </div>
+
+          <div class="field">
+            <label for="telefone">WhatsApp (com DDD)</label>
+            <input id="telefone" name="telefone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(00) 00000-0000" required />
+            <div class="hint">Vamos usar só para avisos e promoções da Zafi Car.</div>
+          </div>
+
+          <div class="field">
+            <label for="regiao">Região onde você mora</label>
+            <input id="regiao" name="regiao" type="text" placeholder="Bairro e cidade — ex.: Centro, Campinas" required />
+          </div>
+
+          <div class="field">
+            <label id="perfilLabel">Você tem um negócio automotivo ou cuida só do seu carro?</label>
+            <div class="segmented" role="radiogroup" aria-labelledby="perfilLabel">
+              <input type="radio" id="perfilPessoa" name="perfil" value="Uso pessoal" required />
+              <label for="perfilPessoa" class="seg-opt">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M5 17a7 7 0 0114 0M12 12a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Só cuido do meu carro
+              </label>
+              <input type="radio" id="perfilEmpresa" name="perfil" value="Empresa do ramo" required />
+              <label for="perfilEmpresa" class="seg-opt">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-6h6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Tenho oficina/loja
+              </label>
+            </div>
+            <div class="hint">Assim mandamos ofertas certas: consumo próprio ou preço de parceiro.</div>
+          </div>
+
+          <button class="btn" type="submit" id="submitBtn">
+            <svg viewBox="0 0 24 24" fill="#0c1631"><path d="M12 2a10 10 0 00-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1012 2zm5.5 13.9c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.2-.7-2.7-1.1-4.4-3.9-4.5-4.1-.1-.2-1-1.4-1-2.6s.6-1.8.9-2.1c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.5c-.2.2-.4.4-.2.7.2.4.9 1.4 1.9 2.3 1.3 1.1 2.3 1.5 2.6 1.6.3.1.5.1.7-.1l.9-1c.2-.3.5-.2.7-.1l2 1c.3.1.5.2.6.3.1.3.1.9-.1 1.5z"/></svg>
+            Quero entrar no grupo
+          </button>
+
+          <div class="msg error" id="errBox"></div>
+          <p class="formnote">🔒 <strong>Sem spam.</strong> Você sai do grupo quando quiser.</p>
+        </form>
+
+        <div class="success" id="successBox">
+          <div class="check">
+            <svg width="38" height="38" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h2>Tudo certo!</h2>
+          <p>Estamos te levando para o grupo da Zafi Car no WhatsApp. Se não abrir sozinho, toque no botão:</p>
+          <a class="btn" id="groupLink" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="#0c1631"><path d="M12 2a10 10 0 00-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1012 2z"/></svg>
+            Abrir o grupo agora
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p><b>ZAFI CAR</b> — Lubrificantes · Estética Automotiva · Filtros</p>
+    <p class="address">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 22s7-7.4 7-12.5A7 7 0 105 9.5C5 14.6 12 22 12 22z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9.5" r="2.5" stroke="currentColor" stroke-width="1.6"/></svg>
+      Estrada do M'Boi Mirim, 1340 — Piraporinha, São Paulo - SP, 04905-001
+      <a href="https://www.google.com/maps/search/?api=1&query=Estrada+do+M%27Boi+Mirim%2C+1340+-+Piraporinha%2C+S%C3%A3o+Paulo+-+SP%2C+04905-001" target="_blank" rel="noopener">Ver no mapa →</a>
+    </p>
+  </footer>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   CONFIGURAÇÃO — edite só aqui
+   ═══════════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  // 1) Link de convite do seu grupo do WhatsApp (Grupo > Convidar > Copiar link)
+  whatsappGroupUrl: "https://chat.whatsapp.com/DRfPr6P0CpECMp2PQAfP5G",
+
+  // 2) PLANILHA GOOGLE SHEETS — cada lead vira uma linha na planilha.
+  //    Cole aqui a URL do "App da Web" gerada pelo Apps Script.
+  //    Passo a passo completo no arquivo COMO-CONFIGURAR.md.
+  //    Deixe "" para desativar.
+  sheetsEndpoint: "https://script.google.com/macros/s/AKfycbwmixaRXMajNENvekb1WOncHPUUmjh94t1Its4fKS8C3h5Er-kHzbPHv1P77pjOSokb/exec",
+
+  // 3) (Opcional) Também receber cada lead por e-mail via FormSubmit.co.
+  //    "" = desligado. Se preencher, na 1ª vez confirme o e-mail que chega.
+  leadEmail: "",
+
+  // 4) Redirecionar automático para o grupo após enviar? (segundos; 0 = só botão)
+  redirectDelay: 2
+};
+/* ═══════════════════════════════════════════════════════════════════ */
+
+const form = document.getElementById('leadForm');
+const errBox = document.getElementById('errBox');
+const successBox = document.getElementById('successBox');
+const submitBtn = document.getElementById('submitBtn');
+const groupLink = document.getElementById('groupLink');
+const tel = document.getElementById('telefone');
+
+/* Máscara de telefone brasileiro: (00) 00000-0000 */
+tel.addEventListener('input', () => {
+  let d = tel.value.replace(/\D/g, '').slice(0, 11);
+  let out = d;
+  if (d.length > 2)  out = '(' + d.slice(0,2) + ') ' + d.slice(2);
+  if (d.length > 7)  out = '(' + d.slice(0,2) + ') ' + d.slice(2,7) + '-' + d.slice(7);
+  tel.value = out;
+});
+
+function showError(text){
+  errBox.textContent = text;
+  errBox.classList.add('show');
+}
+
+function saveLocalBackup(lead){
+  try{
+    const key = 'zaficar_leads';
+    const list = JSON.parse(localStorage.getItem(key) || '[]');
+    list.push(lead);
+    localStorage.setItem(key, JSON.stringify(list));
+  }catch(e){ /* modo privado / storage bloqueado — ignora */ }
+}
+
+function goToGroup(){
+  if (CONFIG.whatsappGroupUrl.includes('COLE_SEU_LINK_AQUI')) return;
+  window.location.href = CONFIG.whatsappGroupUrl;
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errBox.classList.remove('show');
+
+  const nome = form.nome.value.trim();
+  const telefone = form.telefone.value.trim();
+  const regiao = form.regiao.value.trim();
+  const perfilInput = form.querySelector('input[name="perfil"]:checked');
+  const perfil = perfilInput ? perfilInput.value : '';
+  const honey = form._gotcha.value;
+
+  if (honey) return;                       // bot
+  if (nome.length < 3)  return showError('Digite seu nome completo.');
+  if (telefone.replace(/\D/g,'').length < 10) return showError('Digite um WhatsApp válido com DDD.');
+  if (regiao.length < 2) return showError('Informe o bairro e a cidade onde você mora.');
+  if (!perfil) return showError('Selecione se você tem um negócio do ramo ou usa pra você mesmo.');
+
+  const lead = {
+    nome, telefone, regiao, perfil,
+    origem: 'Página de captura — Grupo VIP',
+    data: new Date().toLocaleString('pt-BR')
+  };
+
+  submitBtn.disabled = true;
+  submitBtn.lastChild.textContent = ' Enviando...';
+
+  saveLocalBackup(lead);
+
+  const envios = [];
+
+  /* Grava o lead na planilha do Google Sheets */
+  if (CONFIG.sheetsEndpoint && !CONFIG.sheetsEndpoint.includes('COLE_A_URL')){
+    envios.push(
+      fetch(CONFIG.sheetsEndpoint, {
+        method: 'POST',
+        /* sem header Content-Type de propósito: evita o "preflight" que o
+           Apps Script não responde bem. O script lê e.postData.contents. */
+        body: JSON.stringify(lead)
+      }).catch(err => console.warn('Falha ao gravar na planilha:', err))
+    );
+  }
+
+  /* (Opcional) Também envia por e-mail via FormSubmit.co */
+  if (CONFIG.leadEmail){
+    envios.push(
+      fetch('https://formsubmit.co/ajax/' + encodeURIComponent(CONFIG.leadEmail), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          _subject: 'Novo lead — Grupo VIP Zafi Car',
+          _template: 'table',
+          Nome: nome, WhatsApp: telefone, Regiao: regiao, Perfil: perfil, Data: lead.data
+        })
+      }).catch(err => console.warn('Falha ao enviar e-mail:', err))
+    );
+  }
+
+  /* Espera os envios terminarem (com um teto de 4s pra não travar o lead) */
+  await Promise.race([
+    Promise.allSettled(envios),
+    new Promise(r => setTimeout(r, 4000))
+  ]);
+
+  /* Sucesso na tela */
+  form.style.display = 'none';
+  successBox.classList.add('show');
+
+  if (CONFIG.whatsappGroupUrl.includes('COLE_SEU_LINK_AQUI')){
+    groupLink.textContent = 'Configure o link do grupo no arquivo';
+    groupLink.removeAttribute('href');
+  } else {
+    groupLink.href = CONFIG.whatsappGroupUrl;
+    if (CONFIG.redirectDelay > 0) setTimeout(goToGroup, CONFIG.redirectDelay * 1000);
+  }
+});
+</script>
+</body>
+</html>
